@@ -1,0 +1,22 @@
+services:
+  cattle-ai:
+    build: .
+    image: cattle-ai:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persiste banco de dados e fotos entre reinicializações
+      - ./cattle.db:/app/cattle.db
+      - ./photos:/app/photos
+      # Modelo YOLO (evita baixar a cada rebuild)
+      - ./yolov8n.pt:/app/yolov8n.pt
+    env_file:
+      - .env
+    restart: unless-stopped
+
+    # ── Acesso a webcam local (Linux) ──────────────────────────────────────
+    # Descomente se a câmera for uma webcam USB conectada ao servidor:
+    # devices:
+    #   - /dev/video0:/dev/video0
+    # group_add:
+    #   - video

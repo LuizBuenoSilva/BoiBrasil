@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Backend (FastAPI)",
+      "runtimeExecutable": "C:/Users/Luiz Henrique/AppData/Roaming/Python/Python313/Scripts/uvicorn.exe",
+      "runtimeArgs": ["app.main:app", "--reload", "--port", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "Frontend (Vite + React)",
+      "runtimeExecutable": "C:/Program Files/nodejs/node",
+      "runtimeArgs": ["C:/Users/Luiz Henrique/AppData/Roaming/npm/node_modules/npm/bin/npm-cli.js", "run", "dev", "--prefix", "frontend"],
+      "port": 5173
+    }
+  ]
+}
