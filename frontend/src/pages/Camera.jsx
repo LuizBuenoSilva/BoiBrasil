@@ -211,7 +211,7 @@ function CameraCard({ cam, onToggle, onDelete }) {
 
   // Ao reativar, força recarregamento do stream
   const streamSrc = cam.is_active
-    ? `http://localhost:8000/api/cameras/${cam.id}/stream?t=${cam.id}`
+    ? `/api/cameras/${cam.id}/stream?t=${cam.id}`
     : null
 
   return (
