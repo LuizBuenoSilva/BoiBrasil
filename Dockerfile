@@ -19,7 +19,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Instala dependências Python primeiro (aproveita cache de camada)
+# Instala PyTorch CPU-only primeiro (evita ~2 GB de libs CUDA desnecessárias)
+RUN pip install --no-cache-dir \
+    torch torchvision \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# Instala o restante das dependências
 COPY requirements-web.txt .
 RUN pip install --no-cache-dir -r requirements-web.txt
 
