@@ -2,16 +2,13 @@ import { useEffect, useState } from 'react'
 import api from '../api/client'
 import { useAuth } from '../contexts/AuthContext'
 
-const ROLES = ['visitor', 'employee', 'manager']
-const roleLabel = { visitor: 'Visitante', employee: 'Funcionário', manager: 'Gerente' }
-
 export default function People() {
   const { user } = useAuth()
   const [people, setPeople] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [editing, setEditing] = useState(null)
-  const [editForm, setEditForm] = useState({ name: '', role: 'visitor', description: '', weight: '' })
+  const [editForm, setEditForm] = useState({ name: '', description: '', weight: '' })
 
   function load() {
     api.get('/people').then(r => setPeople(r.data)).finally(() => setLoading(false))
@@ -20,15 +17,13 @@ export default function People() {
   useEffect(() => { load() }, [])
 
   const filtered = people.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.role || '').toLowerCase().includes(search.toLowerCase())
+    p.name.toLowerCase().includes(search.toLowerCase())
   )
 
   function startEdit(person) {
     setEditing(person.id)
     setEditForm({
       name:        person.name,
-      role:        person.role || 'visitor',
       description: person.description || '',
       weight:      person.weight ?? '',
     })
@@ -37,7 +32,6 @@ export default function People() {
   async function saveEdit(id) {
     const payload = {
       name:        editForm.name || undefined,
-      role:        editForm.role,
       description: editForm.description,
       weight:      editForm.weight !== '' ? Number(editForm.weight) : undefined,
     }
@@ -63,7 +57,7 @@ export default function People() {
 
       <input
         className="search-input"
-        placeholder="Buscar por nome ou cargo..."
+        placeholder="Buscar por nome..."
         value={search}
         onChange={e => setSearch(e.target.value)}
       />
@@ -88,12 +82,6 @@ export default function People() {
                       <input className="edit-input" value={editForm.name}
                         onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
                     </label>
-                    <label>Cargo
-                      <select className="edit-input" value={editForm.role}
-                        onChange={e => setEditForm({ ...editForm, role: e.target.value })}>
-                        {ROLES.map(r => <option key={r} value={r}>{roleLabel[r]}</option>)}
-                      </select>
-                    </label>
                     <label>Peso (kg)
                       <input className="edit-input" type="number" value={editForm.weight}
                         placeholder="ex: 70"
@@ -112,7 +100,6 @@ export default function People() {
                   <>
                     <h4 className="entity-name">{person.name}</h4>
                     <div className="meta-row">
-                      <span className="role-badge">{roleLabel[person.role] || person.role}</span>
                       {person.weight && <span className="meta-tag">⚖️ {person.weight} kg</span>}
                     </div>
                     <p className="entity-desc">{person.description || 'Sem descrição'}</p>

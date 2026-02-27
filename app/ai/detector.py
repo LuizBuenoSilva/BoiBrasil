@@ -1,9 +1,11 @@
 """
-app/ai/detector.py — Detector dual (pessoa + gado) para o sistema web.
+app/ai/detector.py — Detector dual (pessoa + animais) para o sistema web.
 
-Estende a lógica do detector.py original para detectar:
-  - Classe COCO 0: person
-  - Classe COCO 19: cow
+Classes COCO detectadas:
+  - 0:  person
+  - 14: bird  | 15: cat   | 16: dog   | 17: horse
+  - 18: sheep | 19: cow   | 20: elephant | 21: bear
+  - 22: zebra | 23: giraffe
 """
 
 import sys
@@ -17,16 +19,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from detector import Detection  # noqa: E402
 
 COCO_PERSON_CLASS = 0
-COCO_COW_CLASS = 19
+# Todos os animais reconhecidos pelo modelo COCO
+COCO_ANIMAL_CLASSES = {14, 15, 16, 17, 18, 19, 20, 21, 22, 23}
+COCO_DETECT_CLASSES = [COCO_PERSON_CLASS] + sorted(COCO_ANIMAL_CLASSES)
 
 
 class DualDetector:
     """
-    Detecta pessoas (class=0) e gado (class=19) no mesmo frame.
+    Detecta pessoas e animais (gado, cães, gatos, cavalos, ovelhas, etc.)
+    no mesmo frame.
 
-    Retorna lista de Detection com campo `entity_type` derivado do class_id:
-      - class_id == 0  → entity_type = "person"
-      - class_id == 19 → entity_type = "animal"
+    Retorna lista de Detection com campo `entity_type`:
+      - class_id == 0         → entity_type = "person"
+      - class_id in animais   → entity_type = "animal"
     """
 
     def __init__(
@@ -43,14 +48,14 @@ class DualDetector:
 
     def detect(self, bgr_frame: np.ndarray) -> list[Detection]:
         """
-        Detecta pessoas e gado no frame BGR.
-        Retorna lista de Detection. O campo entity_type é adicionado dinamicamente.
+        Detecta pessoas e animais no frame BGR.
+        Retorna lista de Detection com entity_type definido.
         """
         results = self.model.predict(
             source=bgr_frame,
             conf=self.conf_threshold,
             iou=self.iou_threshold,
-            classes=[COCO_PERSON_CLASS, COCO_COW_CLASS],
+            classes=COCO_DETECT_CLASSES,
             verbose=False,
             device=self.device,
         )
@@ -72,7 +77,6 @@ class DualDetector:
                 confidence=conf,
                 class_id=cls_id,
             )
-            # Anotação do tipo de entidade
             det.entity_type = "person" if cls_id == COCO_PERSON_CLASS else "animal"
             detections.append(det)
 
