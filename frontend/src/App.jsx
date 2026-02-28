@@ -10,6 +10,7 @@ import Vaccines from './pages/Vaccines'
 import Movements from './pages/Movements'
 import Camera from './pages/Camera'
 import Financials from './pages/Financials'
+import Users from './pages/Users'
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
               <Route path="/movements" element={<Movements />} />
               <Route path="/camera" element={<Camera />} />
               <Route path="/financials" element={<Financials />} />
+              <Route path="/users" element={<Users />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

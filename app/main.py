@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 import app.db.database as db
-from app.api import auth, animals, people, vaccines, movements, camera, cameras, dashboard, financials
+from app.api import auth, animals, people, vaccines, movements, camera, cameras, dashboard, financials, users
 from app.api.camera import set_main_loop, start_worker
 from app.core.config import BASE_DIR, PHOTOS_DIR
 
@@ -45,6 +45,7 @@ app.include_router(camera.router)
 app.include_router(cameras.router)
 app.include_router(dashboard.router)
 app.include_router(financials.router)
+app.include_router(users.router)
 
 # Serve fotos estáticas (crops salvos pela câmera)
 PHOTOS_DIR.mkdir(exist_ok=True)
@@ -70,12 +71,12 @@ async def startup():
     # Registra o event loop para os workers de câmera
     set_main_loop(asyncio.get_event_loop())
 
-    # Auto-inicia câmeras ativas salvas no banco
+    # Auto-inicia câmeras ativas salvas no banco (todas as fazendas)
     cam_list = db.list_cameras()
     for cam in cam_list:
-        if cam["is_active"]:
-            start_worker(cam["id"], cam["source_url"], cam["name"])
-            print(f"[Startup] Câmera iniciada: {cam['name']} ({cam['source_url']})")
+        if cam["is_active"] and cam.get("farm_id"):
+            start_worker(cam["id"], cam["source_url"], cam["name"], cam["farm_id"])
+            print(f"[Startup] Câmera iniciada: {cam['name']} (farm={cam['farm_id']})")
 
     print("[Startup] Cattle AI Web pronto em http://localhost:8000")
     print("[Startup] Documentação: http://localhost:8000/docs")

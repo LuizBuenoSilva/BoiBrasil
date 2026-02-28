@@ -2,19 +2,23 @@ import { Outlet } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { NavLink, useNavigate } from 'react-router-dom'
 
-const navItems = [
+const BASE_NAV = [
   { to: '/',           icon: '📊', label: 'Dashboard' },
   { to: '/animals',    icon: '🐄', label: 'Animais' },
   { to: '/people',     icon: '👤', label: 'Pessoas' },
   { to: '/vaccines',   icon: '💉', label: 'Vacinas' },
-  { to: '/movements',  icon: '↕️', label: 'Movimentações' },
+  { to: '/movements',  icon: '↕️', label: 'Movimentacoes' },
   { to: '/financials', icon: '💰', label: 'Financeiro' },
-  { to: '/camera',     icon: '📷', label: 'Câmera ao Vivo' },
+  { to: '/camera',     icon: '📷', label: 'Camera ao Vivo' },
 ]
 
 export default function Layout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+
+  const navItems = user?.role === 'admin'
+    ? [...BASE_NAV, { to: '/users', icon: '👥', label: 'Usuarios' }]
+    : BASE_NAV
 
   function handleLogout() {
     logout()
@@ -26,7 +30,14 @@ export default function Layout() {
       <aside className="sidebar">
         <div className="sidebar-logo">
           <span className="logo-icon">🐄</span>
-          <span className="logo-text">Cattle AI</span>
+          <div>
+            <span className="logo-text">Cattle AI</span>
+            {user?.farm_name && (
+              <span style={{ display: 'block', fontSize: 11, color: '#aaa', marginTop: 2 }}>
+                {user.farm_name}
+              </span>
+            )}
+          </div>
         </div>
         <nav className="sidebar-nav">
           {navItems.map(({ to, icon, label }) => (
@@ -34,7 +45,7 @@ export default function Layout() {
               key={to}
               to={to}
               end={to === '/'}
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+              className={({ isActive }) => "nav-item " + (isActive ? 'active' : '')}
             >
               <span className="nav-icon">{icon}</span>
               <span className="nav-label">{label}</span>

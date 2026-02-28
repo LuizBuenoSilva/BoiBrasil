@@ -11,10 +11,11 @@ from pydantic import BaseModel, EmailStr
 # ---------------------------------------------------------------------------
 
 class RegisterRequest(BaseModel):
+    """Registro de novo admin + criacao da fazenda."""
     name: str
+    farm_name: str
     email: EmailStr
     password: str
-    role: Optional[str] = "operator"
 
 
 class LoginRequest(BaseModel):
@@ -28,14 +29,25 @@ class TokenResponse(BaseModel):
     user_id: int
     name: str
     role: str
+    farm_id: int
+    farm_name: str
 
 
 class UserOut(BaseModel):
     id: int
+    farm_id: int
     name: str
     email: str
     role: str
     created_at: str
+
+
+class CreateUserRequest(BaseModel):
+    """Criacao de usuario pelo admin da fazenda."""
+    name: str
+    email: EmailStr
+    password: str
+    role: str = "operator"
 
 
 # ---------------------------------------------------------------------------
@@ -202,7 +214,7 @@ class DashboardStats(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Câmeras
+# Cameras
 # ---------------------------------------------------------------------------
 
 class CameraCreate(BaseModel):

@@ -14,14 +14,14 @@ router = APIRouter(prefix="/api/people", tags=["people"])
 
 @router.get("", response_model=list[PersonOut])
 def list_people(current_user: dict = Depends(get_current_user)):
-    return db.list_people()
+    return db.list_people(current_user["farm_id"])
 
 
 @router.get("/{person_id}", response_model=PersonOut)
 def get_person(person_id: int, current_user: dict = Depends(get_current_user)):
-    person = db.get_person(person_id)
+    person = db.get_person(person_id, current_user["farm_id"])
     if not person:
-        raise HTTPException(status_code=404, detail="Pessoa não encontrada")
+        raise HTTPException(status_code=404, detail="Pessoa nao encontrada")
     return person
 
 
@@ -31,23 +31,26 @@ def update_person(
     body: PersonUpdate,
     current_user: dict = Depends(get_current_user),
 ):
-    updated = db.update_person(person_id, body.name, body.role, body.description)
+    farm_id = current_user["farm_id"]
+    updated = db.update_person(
+        person_id, body.name, body.role, body.description, body.weight, farm_id
+    )
     if not updated:
-        raise HTTPException(status_code=404, detail="Pessoa não encontrada")
-    return db.get_person(person_id)
+        raise HTTPException(status_code=404, detail="Pessoa nao encontrada")
+    return db.get_person(person_id, farm_id)
 
 
 @router.delete("/{person_id}", status_code=204)
 def delete_person(person_id: int, current_user: dict = Depends(get_current_user)):
     if current_user["role"] not in ("admin",):
         raise HTTPException(status_code=403, detail="Apenas administradores podem excluir")
-    if not db.delete_person(person_id):
-        raise HTTPException(status_code=404, detail="Pessoa não encontrada")
+    if not db.delete_person(person_id, current_user["farm_id"]):
+        raise HTTPException(status_code=404, detail="Pessoa nao encontrada")
 
 
 @router.get("/{person_id}/photo")
 def person_photo(person_id: int):
     person = db.get_person(person_id)
     if not person or not person.get("photo_path"):
-        raise HTTPException(status_code=404, detail="Foto não disponível")
+        raise HTTPException(status_code=404, detail="Foto nao disponivel")
     return FileResponse(person["photo_path"])

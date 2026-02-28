@@ -11,25 +11,31 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password })
-    localStorage.setItem('token', data.access_token)
-    localStorage.setItem('user', JSON.stringify({
+    const userData = {
       id: data.user_id,
       name: data.name,
       role: data.role,
-    }))
-    setUser({ id: data.user_id, name: data.name, role: data.role })
+      farm_id: data.farm_id,
+      farm_name: data.farm_name,
+    }
+    localStorage.setItem('token', data.access_token)
+    localStorage.setItem('user', JSON.stringify(userData))
+    setUser(userData)
     return data
   }, [])
 
-  const register = useCallback(async (name, email, password, role) => {
-    const { data } = await api.post('/auth/register', { name, email, password, role })
-    localStorage.setItem('token', data.access_token)
-    localStorage.setItem('user', JSON.stringify({
+  const register = useCallback(async (name, farm_name, email, password) => {
+    const { data } = await api.post('/auth/register', { name, farm_name, email, password })
+    const userData = {
       id: data.user_id,
       name: data.name,
       role: data.role,
-    }))
-    setUser({ id: data.user_id, name: data.name, role: data.role })
+      farm_id: data.farm_id,
+      farm_name: data.farm_name,
+    }
+    localStorage.setItem('token', data.access_token)
+    localStorage.setItem('user', JSON.stringify(userData))
+    setUser(userData)
     return data
   }, [])
 

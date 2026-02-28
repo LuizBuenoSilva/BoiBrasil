@@ -20,12 +20,13 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
-def create_token(user_id: int, email: str, role: str) -> str:
+def create_token(user_id: int, email: str, role: str, farm_id: int) -> str:
     expire = datetime.now(timezone.utc) + timedelta(days=JWT_EXPIRE_DAYS)
     payload = {
         "sub": str(user_id),
         "email": email,
         "role": role,
+        "farm_id": farm_id,
         "exp": expire,
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
@@ -34,7 +35,7 @@ def create_token(user_id: int, email: str, role: str) -> str:
 def decode_token(token: str) -> dict:
     """
     Decodifica token JWT.
-    Lança JWTError se inválido ou expirado.
-    Retorna payload com: sub, email, role.
+    Lanca JWTError se invalido ou expirado.
+    Retorna payload com: sub, email, role, farm_id.
     """
     return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])

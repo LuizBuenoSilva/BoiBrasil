@@ -1,5 +1,5 @@
 """
-app/api/movements.py — Log de movimentações (entradas/saídas).
+app/api/movements.py — Log de movimentacoes (entradas/saidas).
 """
 
 from fastapi import APIRouter, Depends
@@ -18,7 +18,7 @@ def list_movements(
     limit: int = 100,
     current_user: dict = Depends(get_current_user),
 ):
-    return db.list_movements(entity_type, limit)
+    return db.list_movements(entity_type, limit, current_user["farm_id"])
 
 
 @router.post("", response_model=MovementOut, status_code=201)
@@ -30,6 +30,7 @@ def create_movement(body: MovementCreate, current_user: dict = Depends(get_curre
         event_type=body.event_type,
         source=body.source or "manual",
         notes=body.notes or "",
+        farm_id=current_user["farm_id"],
     )
-    movements = db.list_movements(limit=1)
+    movements = db.list_movements(limit=1, farm_id=current_user["farm_id"])
     return movements[0] if movements else {}
